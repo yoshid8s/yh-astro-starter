@@ -1,6 +1,9 @@
-import type { WordPressCategory, WordPressPost } from './types';
+import type { WordPressCategory, WordPressMedia, WordPressPost, WordPressTerm } from './types';
+
+export type { WordPressPost } from './types';
 
 const apiUrl = import.meta.env.WORDPRESS_API_URL;
+const embeddedFields = 'wp:featuredmedia,wp:term';
 
 function endpoint(path: string, params = new URLSearchParams()) {
   if (!apiUrl) {
@@ -36,8 +39,55 @@ export function getPostsByCategory(categoryId: number) {
     'posts',
     new URLSearchParams({
       categories: String(categoryId),
-      _embed: 'true',
+      status: 'publish',
+      _embed: embeddedFields,
       per_page: '12',
     }),
   );
+}
+
+export async function getAllPosts() {
+  const posts: WordPressPost[] = [];
+  let page = 1;
+
+  while (true) {
+    const url = endpoint(
+      'posts',
+      new URLSearchParams({
+        page: String(page),
+        status: 'publish',
+        _embed: embeddedFields,
+        per_page: '100',
+      }),
+    );
+    const response = await fetch(url, { headers: { Accept: 'application/json' } });
+
+    if (!response.ok) {
+      throw new Error(`WordPress 記事の取得に失敗しました: ${response.status}`);
+    }
+
+    posts.push(...((await response.json()) as WordPressPost[]));
+    const totalPages = Number(response.headers.get('X-WP-TotalPages') ?? '1');
+
+    if (page >= totalPages) return posts;
+    page += 1;
+  }
+}
+
+export function getFeaturedImage(post: WordPressPost): WordPressMedia | undefined {
+  return post._embedded?.['wp:featuredmedia']?.[0];
+}
+
+export function getPostCategories(post: WordPressPost): WordPressTerm[] {
+  return post._embedded?.['wp:term']?.find((terms) =>
+    terms.some((term) => term.taxonomy === 'category'),
+  ) ?? [];
+}
+
+export function decodeWordPressSlug(slug: string) {
+  try {
+    return decodeURIComponent(slug);
+  } catch {
+    return slug;
+  }
 }
