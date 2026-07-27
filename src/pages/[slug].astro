@@ -1,0 +1,67 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import {
+  decodeWordPressSlug,
+  getAllPosts,
+  getFeaturedImage,
+  getPostCategories,
+  type WordPressPost,
+} from '../lib/wordpress/client';
+import { stripHtml } from '../lib/text';
+
+export const getStaticPaths = (async () => {
+  try {
+    const posts = await getAllPosts();
+
+    return posts.map((post) => ({
+      params: { slug: decodeWordPressSlug(post.slug) },
+      props: { post },
+    }));
+  } catch {
+    return [];
+  }
+}) satisfies GetStaticPaths;
+
+interface Props {
+  post: WordPressPost;
+}
+
+const { post } = Astro.props;
+const title = stripHtml(post.title.rendered);
+const description = stripHtml(post.excerpt.rendered).slice(0, 160) || title;
+const featuredImage = getFeaturedImage(post);
+const categories = getPostCategories(post);
+const slug = decodeWordPressSlug(post.slug);
+const siteUrl = import.meta.env.PUBLIC_SITE_URL?.replace(/\/$/, '');
+const canonical = siteUrl ? `${siteUrl}/${slug}/` : undefined;
+const imageWidth = featuredImage?.media_details?.width ?? 1600;
+const imageHeight = featuredImage?.media_details?.height ?? 1200;
+---
+
+<BaseLayout title={title} description={description} canonical={canonical}>
+  <article class="mx-auto max-w-3xl py-4 sm:py-8">
+    <nav aria-label="パンくずリスト" class="text-sm text-slate-500">
+      <a href="/" class="hover:text-slate-950">Home</a>
+      {categories[0] && <><span aria-hidden="true"> / </span><a href={`/categories/${categories[0].slug}/`} class="hover:text-slate-950">{categories[0].name}</a></>}
+      <span aria-hidden="true"> / </span><span>{title}</span>
+    </nav>
+
+    <header class="mb-10 mt-8">
+      {categories.length > 0 && <p class="text-xs font-medium tracking-widest text-sky-700">{categories.map((category) => category.name).join(' / ')}</p>}
+      <h1 class="mt-4 text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">{title}</h1>
+      <time datetime={post.date} class="mt-5 block text-sm text-slate-500">
+        {new Intl.DateTimeFormat('ja-JP', { dateStyle: 'long' }).format(new Date(post.date))}
+      </time>
+    </header>
+
+    {featuredImage && (
+      <figure class="mb-10 overflow-hidden rounded-xl bg-slate-100">
+        <Image src={featuredImage.source_url} alt={featuredImage.alt_text || title} width={imageWidth} height={imageHeight} widths={[720, 960, 1280, 1600]} sizes="(max-width: 960px) 100vw, 768px" format="webp" quality={86} loading="eager" fetchpriority="high" decoding="async" class="h-auto w-full" />
+      </figure>
+    )}
+
+    <div class="wp-content text-[1rem] leading-8 text-slate-800 sm:text-[1.05rem]" set:html={post.content.rendered} />
+  </article>
+</BaseLayout>
