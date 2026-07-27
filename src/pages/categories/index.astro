@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCategories } from '../../lib/wordpress/client';
+import type { WordPressCategory } from '../../lib/wordpress/types';
+
+let categories: WordPressCategory[] = [];
+let loadError = false;
+
+try {
+  categories = await getCategories();
+} catch {
+  loadError = true;
+}
+---
+
+<BaseLayout title="Categories">
+  <h1 class="text-3xl font-semibold tracking-tight text-slate-950">Categories</h1>
+  <p class="mt-3 text-slate-600">WordPress で管理するカテゴリーから記事を探せます。</p>
+
+  {
+    loadError ? (
+      <p class="mt-8 rounded-lg bg-amber-50 p-4 text-sm text-amber-900">
+        WordPress API に接続できませんでした。.env の WORDPRESS_API_URL を確認してください。
+      </p>
+    ) : (
+      <ul class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {categories.map((category) => (
+          <li>
+            <a
+              href={`/categories/${category.slug}/`}
+              class="block rounded-xl border border-slate-200 p-5 hover:border-slate-400"
+            >
+              <strong class="text-lg text-slate-950">{category.name}</strong>
+              <span class="mt-1 block text-sm text-slate-500">{category.count} articles</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</BaseLayout>
