@@ -1,5 +1,16 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PostCard from '../components/PostCard.astro';
+import { getPosts, type WordPressPost } from '../lib/wordpress/client';
+
+let posts: WordPressPost[] = [];
+let loadError = false;
+
+try {
+  posts = await getPosts(12);
+} catch {
+  loadError = true;
+}
 ---
 
 <BaseLayout title="Y&H Astro Starter">
@@ -11,11 +22,26 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <p class="mt-6 text-lg leading-8 text-slate-600">
       WordPress の編集性を保ちながら、Astro 7、Tailwind CSS 4、Astro Image を使って高速な表示を実現します。
     </p>
-    <a
-      href="/categories/"
-      class="mt-8 inline-flex rounded-full bg-slate-950 px-5 py-3 text-sm font-medium text-white hover:bg-slate-700"
-    >
-      カテゴリーを確認する
-    </a>
   </section>
+
+  {
+    loadError ? (
+      <p class="mt-10 rounded-lg bg-amber-50 p-4 text-sm text-amber-900">
+        WordPress API に接続できませんでした。.env の WORDPRESS_API_URL を確認してください。
+      </p>
+    ) : (
+      <section class="mt-16 border-t border-slate-200 pt-10">
+        <div class="flex items-end justify-between gap-6">
+          <div>
+            <p class="text-sm font-medium tracking-widest text-sky-700">LATEST</p>
+            <h2 class="mt-2 text-3xl font-semibold tracking-tight text-slate-950">最新の記事</h2>
+          </div>
+          <a href="/categories/" class="text-sm text-slate-600 hover:text-slate-950">カテゴリー一覧</a>
+        </div>
+        <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {posts.map((post) => <PostCard post={post} />)}
+        </div>
+      </section>
+    )
+  }
 </BaseLayout>
