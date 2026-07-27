@@ -1,14 +1,17 @@
 ---
 import '../styles/global.css';
+import '../styles/themes/jiji-style.css';
 import { createSeo, type PageSeo } from '../lib/seo';
 
-interface Props extends PageSeo {}
+interface Props extends PageSeo {
+  theme?: string;
+}
 
 const seo = createSeo(Astro.props);
 ---
 
 <!doctype html>
-<html lang="ja">
+<html lang="ja" data-theme={Astro.props.theme}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
@@ -22,13 +25,20 @@ const seo = createSeo(Astro.props);
   </head>
   <body class="min-h-screen bg-white font-sans text-slate-800">
     <header class="border-b border-slate-200">
-      <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-        <a href="/" class="text-lg font-semibold tracking-tight">Y&H Astro Starter</a>
-        <a href="/categories/" class="text-sm text-slate-600 hover:text-slate-950">Categories</a>
-      </div>
+      <slot name="header">
+        <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+          <a href="/" class="text-lg font-semibold tracking-tight">Y&H Astro Starter</a>
+          <a href="/categories/" class="text-sm text-slate-600 hover:text-slate-950">Categories</a>
+        </div>
+      </slot>
     </header>
     <main class="mx-auto max-w-6xl px-6 py-12">
       <slot />
     </main>
+    <footer class="border-t border-slate-200 py-7 text-sm text-slate-500">
+      <slot name="footer">
+        <div class="mx-auto max-w-6xl px-6">© Y&amp;H Inc.</div>
+      </slot>
+    </footer>
   </body>
 </html>
