@@ -34,6 +34,18 @@ export function getCategories() {
   );
 }
 
+export function getPosts(perPage = 10, page = 1) {
+  return request<WordPressPost[]>(
+    'posts',
+    new URLSearchParams({
+      page: String(page),
+      status: 'publish',
+      _embed: embeddedFields,
+      per_page: String(perPage),
+    }),
+  );
+}
+
 export function getPostsByCategory(categoryId: number) {
   return request<WordPressPost[]>(
     'posts',
