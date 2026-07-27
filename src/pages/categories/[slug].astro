@@ -1,0 +1,37 @@
+---
+import PostCard from '../../components/PostCard.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCategories, getPostsByCategory } from '../../lib/wordpress/client';
+
+export async function getStaticPaths() {
+  try {
+    const categories = await getCategories();
+    return categories.map((category) => ({
+      params: { slug: category.slug },
+      props: { category },
+    }));
+  } catch {
+    return [];
+  }
+}
+
+const { category } = Astro.props;
+const posts = await getPostsByCategory(category.id);
+---
+
+<BaseLayout title={category.name} description={category.description || undefined}>
+  <nav aria-label="パンくずリスト" class="text-sm text-slate-500">
+    <a href="/" class="hover:text-slate-950">Home</a>
+    <span aria-hidden="true"> / </span>
+    <a href="/categories/" class="hover:text-slate-950">Categories</a>
+    <span aria-hidden="true"> / </span>
+    <span>{category.name}</span>
+  </nav>
+
+  <h1 class="mt-5 text-3xl font-semibold tracking-tight text-slate-950">{category.name}</h1>
+  {category.description && <p class="mt-3 text-slate-600" set:html={category.description} />}
+
+  <div class="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    {posts.map((post) => <PostCard post={post} />)}
+  </div>
+</BaseLayout>
