@@ -2,6 +2,23 @@ export type WordPressRendered = {
   rendered: string;
 };
 
+export type WordPressMedia = {
+  id: number;
+  source_url: string;
+  alt_text: string;
+  media_details?: {
+    width?: number;
+    height?: number;
+  };
+};
+
+export type WordPressTerm = {
+  id: number;
+  name: string;
+  slug: string;
+  taxonomy: string;
+};
+
 export type WordPressCategory = {
   id: number;
   name: string;
@@ -21,13 +38,7 @@ export type WordPressPost = {
   categories: number[];
   featured_media: number;
   _embedded?: {
-    'wp:featuredmedia'?: Array<{
-      source_url: string;
-      alt_text: string;
-      media_details?: {
-        width: number;
-        height: number;
-      };
-    }>;
+    'wp:featuredmedia'?: WordPressMedia[];
+    'wp:term'?: WordPressTerm[][];
   };
 };
