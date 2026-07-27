@@ -1,0 +1,28 @@
+---
+import { Image } from 'astro:assets';
+import { decodeWordPressSlug, getFeaturedImage, getPostCategories, type WordPressPost } from '../lib/wordpress/client';
+import { stripHtml } from '../lib/text';
+
+interface Props { post: WordPressPost; }
+
+const { post } = Astro.props;
+const image = getFeaturedImage(post);
+const categories = getPostCategories(post);
+const title = stripHtml(post.title.rendered);
+const excerpt = stripHtml(post.excerpt.rendered);
+const postUrl = `/${decodeWordPressSlug(post.slug)}/`;
+const imageWidth = image?.media_details?.width ?? 1600;
+const imageHeight = image?.media_details?.height ?? 1200;
+---
+
+<article class="grid items-center gap-8 border-y border-jiji-border py-8 md:grid-cols-[1.4fr_1fr] md:gap-12 md:py-12">
+  {image && <a class="group block overflow-hidden bg-neutral-100" href={postUrl}><Image class="aspect-[16/11] w-full object-cover transition duration-700 ease-out group-hover:scale-[1.02]" src={image.source_url} alt={image.alt_text || title} width={imageWidth} height={imageHeight} widths={[640, 960, 1280, 1600]} sizes="(max-width: 768px) 100vw, 60vw" format="webp" quality={85} loading="eager" fetchpriority="high" decoding="async" /></a>}
+  <div>
+    <p class="mb-5 text-xs font-medium tracking-[0.2em] text-jiji-muted uppercase">Featured Story</p>
+    {categories.length > 0 && <p class="mb-3 text-xs tracking-[0.14em] text-jiji-muted uppercase">{categories.map((category) => category.name).join(' / ')}</p>}
+    <h1 class="font-jiji-serif text-4xl font-bold leading-[1.08] text-balance md:text-5xl lg:text-6xl"><a class="no-underline transition-opacity hover:opacity-60" href={postUrl}>{title}</a></h1>
+    <time class="mt-5 block text-sm text-jiji-muted" datetime={post.date}>{new Intl.DateTimeFormat('ja-JP', { dateStyle: 'long' }).format(new Date(post.date))}</time>
+    {excerpt && <p class="mt-6 max-w-[38rem] text-base leading-8 text-neutral-700">{excerpt}</p>}
+    <a class="mt-7 inline-flex border-b border-current pb-1 text-sm tracking-wide no-underline transition-opacity hover:opacity-50" href={postUrl}>Read the story</a>
+  </div>
+</article>
