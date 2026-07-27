@@ -1,0 +1,30 @@
+---
+import type { WordPressPost } from '../lib/wordpress/types';
+
+interface Props {
+  post: WordPressPost;
+}
+
+const { post } = Astro.props;
+const image = post._embedded?.['wp:featuredmedia']?.[0];
+---
+
+<article class="overflow-hidden rounded-xl border border-slate-200 bg-white">
+  {image && (
+    <img
+      src={image.source_url}
+      alt={image.alt_text || ''}
+      class="aspect-[3/2] w-full object-cover"
+      loading="lazy"
+    />
+  )}
+  <div class="p-5">
+    <time datetime={post.date} class="text-sm text-slate-500">
+      {new Intl.DateTimeFormat('ja-JP', { dateStyle: 'long' }).format(new Date(post.date))}
+    </time>
+    <h2 class="mt-2 text-xl font-semibold leading-snug">
+      <a href={`/${post.slug}/`} set:html={post.title.rendered} />
+    </h2>
+    <div class="mt-3 line-clamp-3 text-sm leading-6 text-slate-600" set:html={post.excerpt.rendered} />
+  </div>
+</article>
