@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import type { WordPressPost } from '../lib/wordpress/types';
 
 interface Props {
@@ -11,9 +12,11 @@ const image = post._embedded?.['wp:featuredmedia']?.[0];
 
 <article class="overflow-hidden rounded-xl border border-slate-200 bg-white">
   {image && (
-    <img
+    <Image
       src={image.source_url}
       alt={image.alt_text || ''}
+      width={image.media_details?.width ?? 1200}
+      height={image.media_details?.height ?? 800}
       class="aspect-[3/2] w-full object-cover"
       loading="lazy"
     />
