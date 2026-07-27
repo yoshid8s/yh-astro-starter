@@ -24,6 +24,10 @@ export type WordPressPost = {
     'wp:featuredmedia'?: Array<{
       source_url: string;
       alt_text: string;
+      media_details?: {
+        width: number;
+        height: number;
+      };
     }>;
   };
 };
