@@ -1,0 +1,21 @@
+/*
+ * JiJi Style theme example
+ * Import this file from a site-specific layout. It is intentionally not
+ * imported by the starter's shared BaseLayout.
+ */
+
+@theme {
+  --font-jiji-serif: Georgia, "Times New Roman", serif;
+  --color-jiji-text: #222222;
+  --color-jiji-muted: #666666;
+  --color-jiji-border: #dedede;
+}
+
+:root[data-theme='jiji-style'] {
+  color: var(--color-jiji-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+}
+
+:root[data-theme='jiji-style'] .wp-content :is(h2, h3) {
+  font-family: var(--font-jiji-serif);
+}
