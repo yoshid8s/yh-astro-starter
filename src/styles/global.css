@@ -9,24 +9,32 @@ html {
   color: #1f2937;
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
 }
 
-.wp-content > * + * {
-  margin-top: 1.5rem;
-}
-
-.wp-content :is(h2, h3, h4) {
-  color: #0f172a;
-  font-weight: 700;
-  line-height: 1.35;
-}
-
-.wp-content h2 { font-size: 1.5rem; }
-.wp-content h3 { font-size: 1.25rem; }
-.wp-content a { color: #0369a1; text-decoration: underline; }
-.wp-content :is(ul, ol) { padding-left: 1.5rem; }
+.wp-content > :first-child { margin-top: 0; }
+.wp-content p { margin-bottom: 1.6em; }
+.wp-content h2 { margin: 2.4em 0 0.9em; color: #0f172a; font-size: 1.8rem; font-weight: 700; line-height: 1.4; }
+.wp-content h3 { margin: 2.1em 0 0.8em; color: #0f172a; font-size: 1.4rem; font-weight: 700; line-height: 1.45; }
+.wp-content h4 { margin: 2em 0 0.7em; color: #0f172a; font-size: 1.15rem; font-weight: 700; }
+.wp-content img { width: auto; max-width: 100%; height: auto; }
+.wp-content figure, .wp-content .wp-block-image { margin-block: 2.5em; }
+.wp-content figcaption { margin-top: 0.75em; color: #64748b; font-size: 0.8rem; line-height: 1.6; text-align: center; }
+.wp-content blockquote { margin-block: 2em; padding-left: 1.4em; border-left: 3px solid #cbd5e1; color: #475569; }
+.wp-content ul, .wp-content ol { margin-bottom: 1.6em; padding-left: 1.5em; }
 .wp-content ul { list-style: disc; }
 .wp-content ol { list-style: decimal; }
-.wp-content img { height: auto; max-width: 100%; }
+.wp-content a { color: #0369a1; text-decoration: underline; text-underline-offset: 0.18em; }
+.wp-content iframe, .wp-content video { max-width: 100%; }
+.wp-content .wp-block-gallery { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-block: 2.5em; }
+
+@media (max-width: 640px) {
+  .wp-content .wp-block-gallery { grid-template-columns: 1fr; }
+}
