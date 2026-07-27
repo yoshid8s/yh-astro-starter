@@ -1,12 +1,14 @@
 ---
 import type { GetStaticPaths } from 'astro';
 import { Image } from 'astro:assets';
+import PostCard from '../components/PostCard.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import {
   decodeWordPressSlug,
   getAllPosts,
   getFeaturedImage,
   getPostCategories,
+  getPostsByCategory,
   type WordPressPost,
 } from '../lib/wordpress/client';
 import { stripHtml } from '../lib/text';
@@ -38,6 +40,18 @@ const siteUrl = import.meta.env.PUBLIC_SITE_URL?.replace(/\/$/, '');
 const canonical = siteUrl ? `${siteUrl}/${slug}/` : undefined;
 const imageWidth = featuredImage?.media_details?.width ?? 1600;
 const imageHeight = featuredImage?.media_details?.height ?? 1200;
+
+let relatedPosts: WordPressPost[] = [];
+
+if (categories[0]) {
+  try {
+    relatedPosts = (await getPostsByCategory(categories[0].id))
+      .filter((candidate) => candidate.id !== post.id)
+      .slice(0, 3);
+  } catch {
+    relatedPosts = [];
+  }
+}
 ---
 
 <BaseLayout title={title} description={description} canonical={canonical}>
@@ -64,4 +78,13 @@ const imageHeight = featuredImage?.media_details?.height ?? 1200;
 
     <div class="wp-content text-[1rem] leading-8 text-slate-800 sm:text-[1.05rem]" set:html={post.content.rendered} />
   </article>
+
+  {relatedPosts.length > 0 && (
+    <section class="mx-auto mt-4 max-w-6xl border-t border-slate-200 pt-12 sm:mt-10">
+      <h2 class="text-2xl font-semibold tracking-tight text-slate-950">関連記事</h2>
+      <div class="mt-6 grid gap-6 md:grid-cols-3">
+        {relatedPosts.map((relatedPost) => <PostCard post={relatedPost} />)}
+      </div>
+    </section>
+  )}
 </BaseLayout>
