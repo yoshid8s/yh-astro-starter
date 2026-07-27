@@ -1,0 +1,30 @@
+---
+import { Image } from 'astro:assets';
+import { decodeWordPressSlug, getFeaturedImage, getPostCategories, type WordPressPost } from '../lib/wordpress/client';
+import { stripHtml } from '../lib/text';
+
+interface Props { post: WordPressPost; priority?: boolean; }
+
+const { post, priority = false } = Astro.props;
+const image = getFeaturedImage(post);
+const categories = getPostCategories(post);
+const title = stripHtml(post.title.rendered);
+const excerpt = stripHtml(post.excerpt.rendered);
+const postUrl = `/${decodeWordPressSlug(post.slug)}/`;
+const imageWidth = image?.media_details?.width ?? 1200;
+const imageHeight = image?.media_details?.height ?? 900;
+---
+
+<article class="group min-w-0">
+  {image && (
+    <a class="block overflow-hidden bg-neutral-100" href={postUrl} aria-label={`${title}を読む`}>
+      <Image class="aspect-[4/3] w-full object-cover transition duration-500 ease-out group-hover:scale-[1.025]" src={image.source_url} alt={image.alt_text || title} width={imageWidth} height={imageHeight} widths={[480, 720, 960]} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" format="webp" quality={82} loading={priority ? 'eager' : 'lazy'} fetchpriority={priority ? 'high' : 'auto'} decoding="async" />
+    </a>
+  )}
+  <div class="pt-4">
+    {categories.length > 0 && <p class="mb-2 text-[0.7rem] tracking-[0.16em] text-jiji-muted uppercase">{categories.map((category) => category.name).join(' / ')}</p>}
+    <h2 class="m-0 font-jiji-serif text-xl font-bold leading-snug md:text-2xl"><a class="no-underline transition-opacity duration-200 group-hover:opacity-60" href={postUrl}>{title}</a></h2>
+    <time class="mt-2 block text-sm text-jiji-muted" datetime={post.date}>{new Intl.DateTimeFormat('ja-JP', { dateStyle: 'long' }).format(new Date(post.date))}</time>
+    {excerpt && <p class="mt-3 line-clamp-3 text-sm leading-7 text-neutral-700">{excerpt}</p>}
+  </div>
+</article>
