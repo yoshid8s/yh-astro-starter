@@ -5,6 +5,8 @@ export type { WordPressPost } from './types';
 const apiUrl = import.meta.env.WORDPRESS_API_URL;
 const embeddedFields = 'wp:featuredmedia,wp:term';
 
+export const wordpressSiteUrl = apiUrl ? new URL(apiUrl).origin : '';
+
 function endpoint(path: string, params = new URLSearchParams()) {
   if (!apiUrl) {
     throw new Error('WORDPRESS_API_URL を .env に設定してください。');
